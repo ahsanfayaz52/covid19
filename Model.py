@@ -4,7 +4,7 @@ import requests
 from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__ )
 import json
-
+import re
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 import urllib3
@@ -46,34 +46,19 @@ def index():
     if request.method=="GET":
         total_cases = 0
         url =  "https://api.thevirustracker.com/free-api?global=stats"
-        """ 
-        req = Request(
-            url,
-            headers={'User-Agent': 'Mozilla/5.0'})
-        webpage = urlopen(req).read()
-        page_soup = BeautifulSoup(webpage,"html.parser")
-        total_cases = page_soup.findAll("pre" )
-        print(total_cases)
-        return total_cases
-    """
+
         html_content =  requests.get(url).text
         soup = BeautifulSoup(html_content,"lxml")
         data = soup.find("p").text
+
+        res = re.findall(r'\w+', data)
+        values = re.split("[a-z]",str(res))
+
+        numbers = re.findall(r'\d+', str(values))
+
+
         return data
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 if __name__ == '__main__':
     db.create_all()
