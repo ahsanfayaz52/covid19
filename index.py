@@ -56,9 +56,13 @@ def index():
 
         numbers = re.findall(r'\d+', str(values))
 
+        theVirusTracker = index.theVirusTracker(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5],
+                                          numbers[6], numbers[7], numbers[8], numbers[9])
+        db.session.add(theVirusTracker)
+        db.session.commit()
 
         return data
- 
+
 
 if __name__ == '__main__':
     db.create_all()
