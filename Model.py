@@ -1,12 +1,21 @@
 from flask import Flask,request,render_template,redirect,url_for
 from flask_restful import Resource, Api
+import requests
 from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__ )
+import json
+
+from bs4 import BeautifulSoup
+from urllib.request import Request, urlopen
+import urllib3
+
 app.secret_key = "hello"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///thevirustracker.sqlite3'
 
 
+
 db =  SQLAlchemy(app)
+
 
 class theVirusTracker(db.Model):
      id = db.Column("id",db.Integer,primary_key=True)
@@ -32,9 +41,36 @@ class theVirusTracker(db.Model):
          self.source = source
 
 
-@app.route('/',methods=["POST","GET"])
+@app.route('/virusTracker',methods=["POST","GET"])
 def index():
-    return "hello"
+    if request.method=="GET":
+        total_cases = 0
+        url =  "https://api.thevirustracker.com/free-api?global=stats"
+        """ 
+        req = Request(
+            url,
+            headers={'User-Agent': 'Mozilla/5.0'})
+        webpage = urlopen(req).read()
+        page_soup = BeautifulSoup(webpage,"html.parser")
+        total_cases = page_soup.findAll("pre" )
+        print(total_cases)
+        return total_cases
+    """
+        html_content =  requests.get(url).text
+        soup = BeautifulSoup(html_content,"lxml")
+        data = soup.find("p").text
+        return data
+
+
+
+
+
+
+
+
+
+
+
 
 
 
