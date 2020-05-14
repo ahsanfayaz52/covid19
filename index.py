@@ -1,49 +1,24 @@
 from flask import Flask,request,render_template,redirect,url_for
 from flask_restful import Resource, Api
 import requests
-from flask_sqlalchemy import SQLAlchemy
-app = Flask(__name__ )
-import json
+
+
+
 import re
 from bs4 import BeautifulSoup
-from urllib.request import Request, urlopen
-import urllib3
 
-app.secret_key = "hello"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///thevirustracker.sqlite3'
+from Models import theVirusTracker
+from Models import db,app
 
 
 
-db =  SQLAlchemy(app)
 
-
-class theVirusTracker(db.Model):
-     id = db.Column("id",db.Integer,primary_key=True)
-     total_cases = db.Column("total_cases",db.String(100))
-     total_recovered = db.Column("total_recovered",db.String(100))
-     total_unresolved = db.Column("total_unresolved",db.String(100))
-     total_deaths = db.Column("total_deaths",db.String(100))
-     total_new_cases_today = db.Column("total_new_cases_today",db.String(100))
-     total_new_deaths_today = db.Column("total_new_deaths_today",db.String(100))
-     total_active_cases = db.Column("total_active_cases",db.String(100))
-     total_serious_cases = db.Column("total_serious_cases",db.String(100))
-     total_affected_countries = db.Column("total_affected_countries",db.String(100))
-     source = db.Column("source",db.String(100))
-     def __init__(self,total_cases,total_recovered,total_unresolved,total_deaths,total_new_cases_today,total_new_deaths_today,total_active_cases,total_serious_cases,total_affected_countries,source):
-         self.total_cases = total_cases
-         self.total_recovered = total_recovered
-         self.total_unresolved = total_unresolved
-         self.total_new_cases_today = total_new_cases_today
-         self.total_new_deaths_today = total_new_deaths_today
-         self.total_active_cases = total_active_cases
-         self.total_serious_cases = total_serious_cases
-         self.total_affected_countries = total_affected_countries
-         self.source = source
-
-
-@app.route('/virusTracker',methods=["POST","GET"])
+@app.route('/fetch',methods=["POST","GET"])
 def index():
+
     if request.method=="GET":
+
+
         total_cases = 0
         url =  "https://api.thevirustracker.com/free-api?global=stats"
 
@@ -55,13 +30,49 @@ def index():
         values = re.split("[a-z]",str(res))
 
         numbers = re.findall(r'\d+', str(values))
+        data = theVirusTracker(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5],
+                           numbers[6], numbers[7], numbers[8], url)
 
-        theVirusTracker = index.theVirusTracker(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5],
-                                          numbers[6], numbers[7], numbers[8], numbers[9])
-        db.session.add(theVirusTracker)
+        added = db.session.add(data)
         db.session.commit()
+        print("total = "+str(added))
 
-        return data
+
+
+
+
+        return "added successfully"
+
+
+@app.route('/delete/virusTracker',methods=["POST","GET"])
+def delete():
+
+    if request.method == "GET":
+        try:
+            rows = db.session.query(theVirusTracker).delete()
+            db.session.commit()
+
+            show = rows+" removed successfully"
+        except:
+            db.session.rollback()
+            show = "no rows available"
+
+
+        return show
+
+@app.route('/getData/virusTracker',methods=["POST","GET"])
+def getData():
+
+    if request.method == "GET":
+        data =  theVirusTracker.query.all()
+        print("data = "+str(data))
+        for item in data:
+            print(item.source)
+
+    return "hii"
+
+
+
 
 
 if __name__ == '__main__':
