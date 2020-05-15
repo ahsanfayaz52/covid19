@@ -67,3 +67,14 @@ class covidApi(db.Model):
         self.active = active
         self.active_diff = active_diff
         self.fatality_rate = fatality_rate
+
+class indiaCases(db.Model):
+    id = db.Column("id", db.Integer, primary_key=True)
+    confirmed = db.Column("confirmed", db.String(100))
+    deaths = db.Column("deaths", db.String(100))
+    recovered = db.Column("recovered", db.String(100))
+
+    def __init__(self, confirmed,deaths , recovered):
+        self.deaths = deaths
+        self.recovered = recovered
+        self.confirmed = confirmed

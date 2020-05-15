@@ -21,6 +21,7 @@ def index():
         Apis = []
         url =  "https://api.thevirustracker.com/free-api?global=stats"
         url2 = "https://covid-api.com/api/reports/total?date=2020-04-15"
+
         Apis.append(url)
         Apis.append(url2)
 
