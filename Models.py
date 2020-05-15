@@ -1,40 +1,36 @@
-from flask import Flask,request,render_template,redirect,url_for
-from flask_sqlalchemy import SQLAlchemy
-app = Flask(__name__ )
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///covid19Stats.db'
+from __init__ import db
 
-
-
-db =  SQLAlchemy(app)
-
-
-
-
-class theVirusTracker(db.Model):
+class japanCases(db.Model):
     id = db.Column("id", db.Integer, primary_key=True)
-    total_cases = db.Column("total_cases", db.String(100))
-    total_recovered = db.Column("total_recovered", db.String(100))
-    total_unresolved = db.Column("total_unresolved", db.String(100))
-    total_deaths = db.Column("total_deaths", db.String(100))
-    total_new_cases_today = db.Column("total_new_cases_today", db.String(100))
-    total_new_deaths_today = db.Column("total_new_deaths_today", db.String(100))
-    total_active_cases = db.Column("total_active_cases", db.String(100))
-    total_serious_cases = db.Column("total_serious_cases", db.String(100))
-    total_affected_countries = db.Column("total_affected_countries", db.String(100))
-    source = db.Column("source", db.String(100))
+    date = db.Column("date", db.String(100))
+    pcr = db.Column("pcr", db.String(100))
+    positive = db.Column("positive", db.String(100))
+    symptom = db.Column("symptom", db.String(100))
+    symptomless = db.Column("symptomless", db.String(100))
+    symptomConfirming = db.Column("symptomConfirming", db.String(100))
+    hospitalize = db.Column("hospitalize", db.String(100))
+    mild = db.Column("mild", db.String(100))
+    severe = db.Column("severe", db.String(100))
+    confirming = db.Column("confirming", db.String(100))
+    waiting = db.Column("waiting", db.String(100))
+    discharge = db.Column("discharge", db.String(100))
+    death = db.Column("death", db.String(100))
 
-    def __init__(self, total_cases, total_recovered, total_unresolved, total_deaths, total_new_cases_today,
-                 total_new_deaths_today, total_active_cases, total_serious_cases, total_affected_countries, source):
-        self.total_cases = total_cases
-        self.total_recovered = total_recovered
-        self.total_unresolved = total_unresolved
-        self.total_deaths = total_deaths
-        self.total_new_cases_today = total_new_cases_today
-        self.total_new_deaths_today = total_new_deaths_today
-        self.total_active_cases = total_active_cases
-        self.total_serious_cases = total_serious_cases
-        self.total_affected_countries = total_affected_countries
-        self.source = source
+    def __init__(self, date, pcr, positive, symptom, symptomless,
+                 symptomConfirming, hospitalize, mild,severe, confirming, waiting,discharge,death):
+        self.date = date
+        self.pcr = pcr
+        self.positive = positive
+        self.symptom = symptom
+        self.symptomless = symptomless
+        self.symptomConfirming = symptomConfirming
+        self.hospitalize = hospitalize
+        self.mild = mild
+        self.severe = severe
+        self.confirming = confirming
+        self.waiting = waiting
+        self.discharge = discharge
+        self.death = death
 
 
 
