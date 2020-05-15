@@ -35,7 +35,7 @@ def index():
 
         added = db.session.add(data)
         db.session.commit()
-        print("total = "+str(added))
+        print("total = "+str(numbers))
 
 
 
@@ -67,7 +67,7 @@ def getData():
         data =  theVirusTracker.query.all()
         print("data = "+str(data))
         for item in data:
-            print(item.source)
+            print(item.total_cases)
 
     return "hii"
 
