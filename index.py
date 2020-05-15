@@ -7,7 +7,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 
-from Models import theVirusTracker,covidApi
+from Models import theVirusTracker,covidApi,indiaCases
 from Models import db,app
 
 
@@ -19,11 +19,13 @@ def index():
     if request.method=="GET":
 
         Apis = []
-        url =  "https://api.thevirustracker.com/free-api?global=stats"
+        url1 =  "https://api.thevirustracker.com/free-api?global=stats"
         url2 = "https://covid-api.com/api/reports/total?date=2020-04-15"
+        url3 = "https://covid19-stats-api.herokuapp.com/api/v1/cases?country=India"
 
-        Apis.append(url)
+        Apis.append(url1)
         Apis.append(url2)
+        Apis.append(url3)
 
         extractDataFromApis(Apis)
 
@@ -40,7 +42,7 @@ def index():
 
 def extractDataFromApis(urls):
 
-    i = 0
+    i = 1
     for url in urls:
         html_content = requests.get(url).text
         soup = BeautifulSoup(html_content, "lxml")
@@ -52,15 +54,21 @@ def extractDataFromApis(urls):
         numbers = re.findall(r'\d+', str(values))
 
 
-        if i==0:
+
+        if i==1:
 
 
             addDataToVirusTracker(numbers,url)
-        if i == 1:
+
+        if i == 2:
 
             addDataToCovidApi(numbers)
+        if i == 3:
+
+            addDataToIndiaApi(numbers)
 
         i = i + 1
+
 
 
 
@@ -112,6 +120,21 @@ def addDataToCovidApi(numbers):
     db.session.commit()
 
 
+def addDataToIndiaApi(numbers):
+    confirmed = numbers[0]
+    deaths = numbers[1]
+    recovered = numbers[2]
+    print(numbers)
+
+
+    indiaApiData =   indiaCases(confirmed,deaths,recovered)
+    db.session.add(indiaApiData)
+    db.session.commit()
+
+
+
+
+
 
 
 
@@ -131,6 +154,15 @@ def deleteDataFromDatabase(data):
         elif data == "covidApi":
             try:
                 rows = db.session.query(covidApi).delete()
+                db.session.commit()
+
+                show = rows + " removed successfully"
+            except:
+                db.session.rollback()
+                show = "no rows available"
+        elif data == "indiaCases":
+            try:
+                rows = db.session.query(indiaCases).delete()
                 db.session.commit()
 
                 show = rows + " removed successfully"
@@ -161,6 +193,11 @@ def getDataFromDatabase(data):
             print("data = " + str(data))
             for item in data:
                 print(item.last_update)
+        elif data == "indiaCases":
+            data = indiaCases.query.all()
+            print("data = " + str(data))
+            for item in data:
+                print(item.recovered)
 
 
         else:
