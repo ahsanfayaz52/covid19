@@ -1,8 +1,8 @@
 from flask import Flask,request,render_template,redirect,url_for
 from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__ )
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///theVirusTracker.sqlite3'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///covidApi.sqlite3'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///covid19Stats.db'
+
 
 
 db =  SQLAlchemy(app)
