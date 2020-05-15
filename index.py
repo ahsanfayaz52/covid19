@@ -13,37 +13,43 @@ from Models import db,app
 
 
 
-@app.route('/fetch',methods=["POST","GET"])
-def index():
+@app.route('/fetch/<data>',methods=["POST","GET"])
+def covid19Stats(data):
 
     if request.method=="GET":
 
-        Apis = []
+
+
         url1 =  "https://api.thevirustracker.com/free-api?global=stats"
         url2 = "https://covid-api.com/api/reports/total?date=2020-04-15"
         url3 = "https://covid19-stats-api.herokuapp.com/api/v1/cases?country=India"
 
-        Apis.append(url1)
-        Apis.append(url2)
-        Apis.append(url3)
+        if data == "virusTracker":
+            result = extractDataFromApis(url1,"virusTracker" )
 
-        extractDataFromApis(Apis)
+            return result
+        if data == "covidApi":
+            result = extractDataFromApis(url2, "covidApi")
 
-
-
-
-
-
-        return "added successfully"
-
-
-
+            return result
+        if data == "indiaCases":
+            result = extractDataFromApis(url3, "indiaCases")
+            return result
+        else:
+            return "no api available"
 
 
-def extractDataFromApis(urls):
 
-    i = 1
-    for url in urls:
+
+
+
+
+
+
+def extractDataFromApis(url,apiName):
+
+
+    try:
         html_content = requests.get(url).text
         soup = BeautifulSoup(html_content, "lxml")
         data = soup.find("p").text
@@ -53,30 +59,20 @@ def extractDataFromApis(urls):
 
         numbers = re.findall(r'\d+', str(values))
 
-
-
-        if i==1:
-
-
+        if apiName == "virusTracker":
             addDataToVirusTracker(numbers,url)
 
-        if i == 2:
-
+        if apiName == "covidApi":
             addDataToCovidApi(numbers)
-        if i == 3:
 
+        if apiName == "indiaCases":
             addDataToIndiaApi(numbers)
 
-        i = i + 1
 
+        return "Data is added successfully"
 
-
-
-
-
-
-
-
+    except:
+        return "Internal error occured"
 
 
 def addDataToVirusTracker(numbers,url):
@@ -141,63 +137,88 @@ def addDataToIndiaApi(numbers):
 @app.route('/delete/<data>',methods=["POST","GET"])
 def deleteDataFromDatabase(data):
 
+
+    show = "null"
     if request.method == "GET":
         if data == "virusTracker":
             try:
                 rows = db.session.query(theVirusTracker).delete()
                 db.session.commit()
+                print(rows)
 
-                show = rows + " removed successfully"
+                if rows == 1:
+                    show  =  str(rows)  + " rows removed successfully"
+                else:
+                    show =  "no rows available"
+
+
             except:
                 db.session.rollback()
-                show = "no rows available"
+
         elif data == "covidApi":
             try:
                 rows = db.session.query(covidApi).delete()
                 db.session.commit()
 
-                show = rows + " removed successfully"
+                if rows != 0:
+                    show  =  str(rows)  + " rows removed successfully"
+                else:
+                    show =  "no rows available"
             except:
                 db.session.rollback()
-                show = "no rows available"
+
         elif data == "indiaCases":
             try:
                 rows = db.session.query(indiaCases).delete()
                 db.session.commit()
+                print(rows)
+                if rows != 0:
 
-                show = rows + " removed successfully"
+                    show  =  str(rows)  + " rows removed successfully"
+                else:
+                    show =  "no rows available"
+
+
             except:
                 db.session.rollback()
-                show = "no rows available"
+
         else:
-            print("sorry no route sexist")
+            return "sorry no api available"
 
+    return show
 
-
-
-        return "hello"
 
 @app.route('/getData/<data>',methods=["POST","GET"])
 def getDataFromDatabase(data):
+    result = "null"
 
     if request.method == "GET":
+
         if data == "virusTracker" :
-            data = theVirusTracker.query.all()
+            data = theVirusTracker.query.order_by(-theVirusTracker.id).all()
             print("data = " + str(data))
-            for item in data:
-                print(item.total_cases)
+            for item in data :
+                result = "total_cases = " + item.total_cases + "\ntotal_recovered = " + item.total_recovered + "\ntotal_unresolved = " + item.total_unresolved + "\ntotal_deaths = " + item.total_deaths + "\ntotal_new_cases_today = " + item.total_new_cases_today + "\ntotal_new_deaths_today = " + item.total_new_deaths_today + \
+                         "\ntotal_active_cases = " + item.total_active_cases + "\ntotal_serious_cases = " + item.total_serious_cases + "\nactive = " + item.total_affected_countries + "\nsource = " + item.source
+
+                break
 
 
         elif data == "covidApi":
-            data = covidApi.query.all()
-            print("data = " + str(data))
+            data = covidApi.query.order_by(-covidApi.id).all()
+
             for item in data:
-                print(item.last_update)
+                result = "date = "+item.date+"\nlast_update = "+item.last_update+"\nconfirmed = "+item.confirmed+"\nconfirmed_diff = "+item.confirmed_diff+"\ndeaths = "+item.deaths+"\ndeaths_diff = "+item.deaths_diff+\
+                "\nrecovered = " + item.recovered + "\nrecovered_diff = " + item.recovered_diff + "\nactive = " + item.active + "\nactive_diff = " + item.active_diff + "\nfatality_rate = " + item.fatality_rate
+
+                break
         elif data == "indiaCases":
-            data = indiaCases.query.all()
-            print("data = " + str(data))
+            data = indiaCases.query.order_by(-indiaCases.id).all()
+
             for item in data:
-                print(item.recovered)
+                result = "confirmed cases = "+item.confirmed+"\nDeaths = "+item.deaths+"\nRecovered = "+item.recovered
+
+                break
 
 
         else:
@@ -206,7 +227,7 @@ def getDataFromDatabase(data):
 
 
 
-    return "hii"
+    return result
 
 
 
