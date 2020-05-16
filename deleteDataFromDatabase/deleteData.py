@@ -9,12 +9,17 @@ mod3 = Blueprint('deleteData',__name__)
 
 @mod3.route( '/<data>',methods=["POST","GET"])
 def deleteData(data):
-
+    """
+    this method is called when user send request to delete data from apis
+    :param data
+    :return a string showing how much rows are affected i.e deleted
+    """
 
     show = "null"
     if request.method == "GET":
         if data == "japanCases":
             try:
+                #delete all the rows from japanCases table
                 rows = db.session.query(japanCases).delete()
                 db.session.commit()
                 print(rows)
@@ -30,6 +35,7 @@ def deleteData(data):
 
         elif data == "covidApi":
             try:
+                # delete all the rows from japanCases table
                 rows = db.session.query(covidApi).delete()
                 db.session.commit()
 
@@ -42,6 +48,7 @@ def deleteData(data):
 
         elif data == "indiaCases":
             try:
+                # delete all the rows from japanCases table
                 rows = db.session.query(indiaCases).delete()
                 db.session.commit()
                 print(rows)

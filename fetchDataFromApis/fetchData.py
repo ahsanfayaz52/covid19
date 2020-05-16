@@ -13,11 +13,18 @@ mod1 = Blueprint('fetchData',__name__)
 
 @mod1.route( '/<data>',methods=["POST","GET"])
 def fetchData(data):
-    if request.method == "GET":
+    """
+    this method is called when user send request to extract new data from apis
+    :param data
+    :return a string showing wether data is added to database or some internal error is occured
+    """
 
-        url1 = "https://covid19-japan-web-api.now.sh/api/v1/total"
-        url2 = "https://covid-api.com/api/reports/total?date=2020-04-15"
-        url3 = "https://covid19-stats-api.herokuapp.com/api/v1/cases?country=India"
+    if request.method == "GET":
+        ### i have named the apis as japanCases, covidApi, indiaCases
+
+        url1 = "https://covid19-japan-web-api.now.sh/api/v1/total"                   #japanCases
+        url2 = "https://covid-api.com/api/reports/total?date=2020-04-15"             #covidApi
+        url3 = "https://covid19-stats-api.herokuapp.com/api/v1/cases?country=India"  #indiaCases
 
         if data == "japanCases":
             result = extractDataFromApis(url1, "japanCases")
@@ -36,14 +43,19 @@ def fetchData(data):
 
 def extractDataFromApis(url, apiName):
     try:
-
+        """
+        this method is used to extract data from apis and call another methods to add data in particular database
+        :param url, apiName 
+        :return a string showing wether data is added to database or some internal error is occured
+        """
+        ###############    Extracting data from apis   ##############
         html_content = requests.get(url).text
         soup = BeautifulSoup(html_content, "lxml")
 
         data = soup.find("p").text
 
 
-
+        #filtering data to get useful information only
         res = re.findall(r'\w+', data)
         values = re.split("[a-z]", str(res))
 
@@ -69,6 +81,16 @@ def extractDataFromApis(url, apiName):
 
 
 def addDataToJapanCases(numbers):
+    """
+
+     this method is used to add data to japanCases table
+     :param list of numbers
+     :return none
+
+
+
+    """
+
     date = numbers[0]
     pcr = numbers[1]
     positive = numbers[2]
@@ -95,6 +117,15 @@ def addDataToJapanCases(numbers):
 
 
 def addDataToCovidApi(numbers):
+    """
+
+         this method is used to add data to covidApi table
+         :param list of numbers
+         :return none
+
+
+
+        """
     data = numbers[0] + "-" + numbers[1] + "-" + numbers[2]
     last_update = numbers[3] + "-" + numbers[4] + "-" + numbers[5] + " " + numbers[6] + ":" + numbers[7] + ":" + \
                   numbers[8]
@@ -116,6 +147,15 @@ def addDataToCovidApi(numbers):
 
 
 def addDataToIndiaApi(numbers):
+    """
+
+         this method is used to add data to indiaCases table
+         :param list of numbers
+         :return none
+
+
+
+        """
     confirmed = numbers[0]
     deaths = numbers[1]
     recovered = numbers[2]

@@ -7,11 +7,19 @@ mod = Blueprint('getData',__name__)
 
 @mod.route('/<data>',methods=["POST","GET"])
 def getData(data):
+    """
+             this method is called when user send request to get data from database
+             :param data
+             :return a list of items representing the data of api
+        """
     result = "null"
 
     if request.method == "GET":
 
         if data == "japanCases" :
+            #### reverse all the rows so that we have last row added on the top because last row is latest one
+            ##   and fetch that row by looping through data when top row is fetched then
+            #     break the loop as we dont need other rows
             data = japanCases.query.order_by(-japanCases.id).all()
             print("data = " + str(data))
             for item in data :

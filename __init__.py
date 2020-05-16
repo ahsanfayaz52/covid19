@@ -9,7 +9,6 @@ db =  SQLAlchemy(app)
 
 from fetchDataFromApis.fetchData import mod1
 from  getDataFromDatabase.getData import mod
-#from getData import mod
 from deleteDataFromDatabase.deleteData import mod3
 
 
