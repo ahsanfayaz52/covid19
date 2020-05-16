@@ -36,15 +36,22 @@ def fetchData(data):
 
 def extractDataFromApis(url, apiName):
     try:
+
         html_content = requests.get(url).text
         soup = BeautifulSoup(html_content, "lxml")
+
         data = soup.find("p").text
+
+
 
         res = re.findall(r'\w+', data)
         values = re.split("[a-z]", str(res))
 
         numbers = re.findall(r'\d+', str(values))
-        print(numbers)
+
+
+		 
+     
 
         if apiName == "japanCases":
             addDataToJapanCases(numbers)
@@ -75,6 +82,7 @@ def addDataToJapanCases(numbers):
     waiting = numbers[10]
     discharge = numbers[11]
     death = numbers[12]
+
 
 
 
